@@ -1,0 +1,5 @@
+{ "src": "c1", "dest": "n1", "body": { "type": "init", "msg_id": 1, "node_id": "n1", "node_ids": ["n1"] } }
+{ "src": "c1", "dest": "n1", "body": { "type": "topology", "msg_id": 2, "topology": { "n1": ["n2", "n3"] } } }
+{ "src": "c1", "dest": "n1", "body": { "type": "broadcast", "msg_id": 3, "message": 1 } }
+{ "src": "c1", "dest": "n1", "body": { "type": "broadcast", "msg_id": 4, "message": 2 } }
+{ "src": "c1", "dest": "n1", "body": { "type": "broadcast", "msg_id": 5, "message": 3 } }

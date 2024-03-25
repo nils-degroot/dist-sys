@@ -1,0 +1,5 @@
+{ "src": "m", "dest": "n1", "body": { "type": "init", "msg_id": 1, "node_id": "n1", "node_ids": ["n1", "n2"] } }
+{ "src": "m", "dest": "n2", "body": { "type": "init", "msg_id": 2, "node_id": "n2", "node_ids": ["n1", "n2"] } }
+{ "src": "m", "dest": "n1", "body": { "type": "generate", "msg_id": 3 } }
+{ "src": "m", "dest": "n1", "body": { "type": "generate", "msg_id": 4 } }
+{ "src": "m", "dest": "n2", "body": { "type": "generate", "msg_id": 5 } }
