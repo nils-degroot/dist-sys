@@ -51,6 +51,7 @@ where
         tx: mpsc::Sender<Message<I>>,
         rx: mpsc::Receiver<Message<I>>,
         node_id: String,
+        other: Vec<String>,
     ) -> Self;
 
     fn run(&mut self) -> Result<()>;
@@ -69,7 +70,7 @@ where
         serde_json::from_str::<Message<InitPayload>>(&buf)?
     };
 
-    let (node_id, _) = match init.body.payload {
+    let (node_id, other) = match init.body.payload {
         InitPayload::Init { node_id, node_ids } => (node_id, node_ids),
         _ => bail!("No initialization send"),
     };
@@ -113,7 +114,7 @@ where
         anyhow::Ok(())
     });
 
-    N::initialize(handler_tx, node_rx, node_id).run()?;
+    N::initialize(handler_tx, node_rx, node_id, other).run()?;
 
     Ok(())
 }

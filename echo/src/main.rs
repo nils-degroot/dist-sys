@@ -24,6 +24,7 @@ impl Node<EchoPayload> for EchoNode {
         tx: mpsc::Sender<Message<EchoPayload>>,
         rx: mpsc::Receiver<Message<EchoPayload>>,
         node_id: String,
+        _other: Vec<String>,
     ) -> Self {
         Self {
             tx,

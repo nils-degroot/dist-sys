@@ -40,6 +40,7 @@ impl Node<Payload> for BroadcastNode {
         tx: mpsc::Sender<Message<Payload>>,
         rx: mpsc::Receiver<Message<Payload>>,
         node_id: String,
+        _other: Vec<String>,
     ) -> Self {
         Self {
             tx,

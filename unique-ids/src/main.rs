@@ -24,6 +24,7 @@ impl Node<GeneratePayload> for UniqueIdNode {
         tx: mpsc::Sender<Message<GeneratePayload>>,
         rx: mpsc::Receiver<Message<GeneratePayload>>,
         node_id: String,
+        _other: Vec<String>,
     ) -> Self {
         Self {
             tx,
