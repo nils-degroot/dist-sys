@@ -7,7 +7,7 @@ use std::{
 use anyhow::{bail, Result};
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub struct Message<S> {
     pub src: String,
     pub dest: String,
@@ -25,7 +25,7 @@ impl<S: Serialize> Message<S> {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub struct Body<S> {
     pub msg_id: Option<usize>,
     pub in_reply_to: Option<usize>,

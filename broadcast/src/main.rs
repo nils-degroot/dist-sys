@@ -54,27 +54,23 @@ impl Node<Payload> for BroadcastNode {
 
     fn run(&mut self) -> Result<()> {
         let mut queue = VecDeque::<Message<Payload>>::with_capacity(16);
-        let mut unfinished = Vec::<(Instant, Message<Payload>)>::with_capacity(16);
+        let mut unfinished = VecDeque::<(Instant, Message<Payload>)>::with_capacity(16);
 
         loop {
-            for (time, msg) in unfinished.iter_mut() {
+            while let Some((time, msg)) = unfinished.pop_front() {
                 if time.elapsed().as_millis() < 300 {
-                    continue;
+                    unfinished.push_front((time, msg));
+                    break;
                 }
 
                 self.tx.send(msg.clone())?;
-                *time = Instant::now();
+                unfinished.push_back((Instant::now(), msg));
             }
 
             if let Some(msg) = queue.pop_front() {
                 match msg.body.payload {
                     Payload::Broadcast { message } => {
-                        let conf_msg = self.generate_message(
-                            Payload::BroadcastOk,
-                            msg.src.clone(),
-                            msg.body.msg_id,
-                        );
-                        self.tx.send(conf_msg)?;
+                        self.send_response(&msg, Payload::BroadcastOk)?;
 
                         if self.values.contains(&message) {
                             continue;
@@ -94,25 +90,20 @@ impl Node<Payload> for BroadcastNode {
                             );
 
                             self.tx.send(msg.clone())?;
-                            unfinished.push((Instant::now(), msg))
+                            unfinished.push_back((Instant::now(), msg))
                         }
                     }
                     Payload::Read => {
-                        let msg = self.generate_message(
+                        self.send_response(
+                            &msg,
                             Payload::ReadOk {
                                 messages: self.values.clone(),
                             },
-                            msg.src,
-                            msg.body.msg_id,
-                        );
-                        self.tx.send(msg)?;
+                        )?;
                     }
-                    Payload::Topology { topology } => {
+                    Payload::Topology { ref topology } => {
                         self.neighbors = topology[&self.node_id].clone();
-
-                        let msg =
-                            self.generate_message(Payload::TopologyOk, msg.src, msg.body.msg_id);
-                        self.tx.send(msg)?;
+                        self.send_response(&msg, Payload::TopologyOk)?;
                     }
                     Payload::BroadcastOk => {
                         let msg_id = msg.body.in_reply_to;
@@ -121,7 +112,7 @@ impl Node<Payload> for BroadcastNode {
                             .position(|(_, msg)| msg_id == msg.body.msg_id);
 
                         if let Some(index) = index {
-                            unfinished.swap_remove(index);
+                            unfinished.remove(index);
                         }
                     }
                     m => bail!("Message invalid for node: {m:?}"),
@@ -159,6 +150,13 @@ impl BroadcastNode {
                 payload,
             },
         }
+    }
+
+    fn send_response(&mut self, msg: &Message<Payload>, payload: Payload) -> Result<()> {
+        let ack_msg = self.generate_message(payload, msg.src.clone(), msg.body.msg_id);
+        self.tx.send(ack_msg)?;
+
+        Ok(())
     }
 }
 
